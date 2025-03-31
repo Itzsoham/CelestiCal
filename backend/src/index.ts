@@ -4,6 +4,9 @@ import cors from "cors";
 
 import { config } from "./configs/app.config";
 import { errorHandler } from "./middlewares/errorHandler.middleware";
+import { asyncHandler } from "./middlewares/asyncHandler.middleware";
+import { HTTPSTATUS } from "./configs/http.config";
+import { BadRequestException } from "./utils/app-error";
 
 const app = express();
 
@@ -17,15 +20,15 @@ app.use(
   })
 );
 
-app.get("/", (req: Request, res: Response, next: NextFunction) => {
-  try {
-    res.status(200).json({
-      message: "Welcome to the API of CelestiCal",
+app.get(
+  "/",
+  asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
+    throw new BadRequestException("throwing async error");
+    res.status(HTTPSTATUS.OK).json({
+      message: "Hello Subscribe to the channel",
     });
-  } catch (error) {
-    next(error);
-  }
-});
+  })
+);
 
 app.use(errorHandler);
 

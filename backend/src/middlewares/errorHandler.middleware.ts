@@ -1,24 +1,29 @@
 import { ErrorRequestHandler } from "express";
+import { AppError } from "../utils/app-error";
 import { HTTPSTATUS } from "../configs/http.config";
 
-export const errorHandler: ErrorRequestHandler = (err, req, res, next) => {
-  console.error(`Error Occurred on PATH: ${req.path}`, err);
+export const errorHandler: ErrorRequestHandler = (
+  error,
+  req,
+  res,
+  next
+): any => {
+  console.log(`Error Occured on PATH: ${req.path}`, error);
 
-  if (err instanceof SyntaxError) {
-    res
-      .status(HTTPSTATUS.BAD_REQUEST)
-      .json({
-        message: "Invalid JSON format. Please check your request body.",
-        error: err?.message || "Invalid JSON",
-      })
-      .end();
+  if (error instanceof SyntaxError) {
+    return res.status(HTTPSTATUS.BAD_REQUEST).json({
+      message: "Invalid JSON format. Please check your request body.",
+    });
   }
 
-  res
-    .status(HTTPSTATUS.INTERNAL_SERVER_ERROR)
-    .json({
-      message: "Internal Server Error",
-      error: err?.message || "Something went wrong",
-    })
-    .end();
+  if (error instanceof AppError) {
+    return res.status(error.statusCode).json({
+      message: error.message,
+      errorCode: error.errorCode,
+    });
+  }
+  return res.status(HTTPSTATUS.INTERNAL_SERVER_ERROR).json({
+    message: "Internal Server Error",
+    error: error?.message || "Unknow error occurred",
+  });
 };
