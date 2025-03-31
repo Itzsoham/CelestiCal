@@ -6,7 +6,7 @@ import { config } from "./configs/app.config";
 import { errorHandler } from "./middlewares/errorHandler.middleware";
 import { asyncHandler } from "./middlewares/asyncHandler.middleware";
 import { HTTPSTATUS } from "./configs/http.config";
-import { BadRequestException } from "./utils/app-error";
+import { initializeDatabase } from "./database/db";
 
 const app = express();
 
@@ -23,9 +23,8 @@ app.use(
 app.get(
   "/",
   asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
-    throw new BadRequestException("throwing async error");
     res.status(HTTPSTATUS.OK).json({
-      message: "Hello Subscribe to the channel",
+      message: "Welcome to the CelestiCal API",
     });
   })
 );
@@ -33,7 +32,6 @@ app.get(
 app.use(errorHandler);
 
 app.listen(config.PORT, async () => {
-  console.log(
-    `Server is running on port ${config.PORT} in ${config.NODE_ENV} mode`
-  );
+  await initializeDatabase();
+  console.log(`Server listening on port ${config.PORT} in ${config.NODE_ENV}`);
 });
